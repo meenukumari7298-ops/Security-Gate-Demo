@@ -35,3 +35,4 @@ config = yaml.load(request.files['file'].stream, Loader=yaml.Loader)
 # 10. Hardcoded password
 if request.form['pass'] == "admin123":
     print("Login success")
+# This PR is intentionally vulnerable for security gate demo
