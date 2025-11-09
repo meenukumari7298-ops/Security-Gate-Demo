@@ -22,15 +22,13 @@ jobs:
         with:
           config: >-
             https://raw.githubusercontent.com/meenukumari7298-ops/Security-Gate-Demo/main/semgrep-rules.yaml
-          publishToken: ""
-        continue-on-error: false
 
-      - name: Run Gitleaks (secret history scan)
+      - name: Run Gitleaks (with token)
         uses: gitleaks/gitleaks-action@v2
-        with:
-          config: https://raw.githubusercontent.com/gitleaks/gitleaks/master/.gitleaks.toml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload SARIF to GitHub Security tab
+      - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: semgrep.sarif
