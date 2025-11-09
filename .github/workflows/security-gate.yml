@@ -1,0 +1,36 @@
+name: Security Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep (10 custom rules)
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            https://raw.githubusercontent.com/meenukumari7298-ops/Security-Gate-Demo/main/semgrep-rules.yaml
+          publishToken: ""
+        continue-on-error: false
+
+      - name: Run Gitleaks (secret history scan)
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config: https://raw.githubusercontent.com/gitleaks/gitleaks/master/.gitleaks.toml
+
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
