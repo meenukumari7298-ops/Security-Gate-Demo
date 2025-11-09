@@ -1,0 +1,75 @@
+rules:
+  - id: hardcoded-aws-key
+    patterns:
+      - pattern-regex: AKIA[0-9A-Z]{16}
+    message: Hardcoded AWS access key detected! Use secrets manager.
+    languages: [python]
+    severity: ERROR
+
+  - id: hardcoded-jwt-secret
+    patterns:
+      - pattern: $SECRET = "my-super-secret-jwt-key"
+    message: JWT secret hardcoded! Use environment variables.
+    languages: [python]
+    severity: ERROR
+
+  - id: hardcoded-stripe-key
+    patterns:
+      - pattern-regex: sk_live_[0-9a-zA-Z]{24}
+    message: Stripe live key leaked! Rotate immediately.
+    languages: [python]
+    severity: ERROR
+
+  - id: hardcoded-okta-key
+    patterns:
+      - pattern-regex: 00[a-z0-9]{38}
+    message: Okta API key exposed! Revoke now.
+    languages: [python]
+    severity: ERROR
+
+  - id: pickle-deserialization
+    patterns:
+      - pattern-either:
+          - pattern: pickle.loads(...)
+          - pattern: pickle.load(...)
+    message: Pickle deserialization = RCE risk! Use JSON/msgpack.
+    languages: [python]
+    severity: ERROR
+
+  - id: weak-random
+    patterns:
+      - pattern: random.random()
+      - pattern: random.randint(...)
+    message: Weak crypto! Use secrets.token_hex() or os.urandom().
+    languages: [python]
+    severity: ERROR
+
+  - id: flask-debug-true
+    patterns:
+      - pattern: app.run(debug=True)
+    message: debug=True in production enables /console RCE!
+    languages: [python]
+    severity: ERROR
+
+  - id: command-injection
+    patterns:
+      - pattern: subprocess.run(..., shell=True)
+      - pattern: subprocess.Popen(..., shell=True)
+    message: Shell=True enables command injection!
+    languages: [python]
+    severity: ERROR
+
+  - id: insecure-yaml-load
+    patterns:
+      - pattern: yaml.load(..., Loader=yaml.Loader)
+      - pattern: yaml.load(..., Loader=yaml.BaseLoader)
+    message: yaml.load() without SafeLoader = arbitrary code execution!
+    languages: [python]
+    severity: ERROR
+
+  - id: hardcoded-password
+    patterns:
+      - pattern-regex: (?:password|pass)\s*[:=]\s*['"][^'"]{4,}['"]
+    message: Hardcoded password detected! Never commit credentials.
+    languages: [python]
+    severity: ERROR
